@@ -1,0 +1,24 @@
+{
+  "name": "guimaraes-companion",
+  "version": "1.0.0",
+  "description": "订货特工 Guimarães — 桌面陪伴小人 (透明置顶悬浮窗)",
+  "main": "main.js",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.sushi.guimaraes",
+    "productName": "GuimaraesCompanion",
+    "files": ["main.js", "preload.js", "companion.html"],
+    "mac": { "target": "dmg", "category": "public.app-category.productivity" },
+    "win": { "target": "nsis" },
+    "linux": { "target": "AppImage" }
+  },
+  "devDependencies": {
+    "electron": "^30.0.6",
+    "electron-builder": "^24.13.3"
+  }
+}

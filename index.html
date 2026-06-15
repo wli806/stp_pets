@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>订货特工 · Guimarães</title>
+<link rel="stylesheet" href="ds/styles.css">
+<style>
+  html, body { margin:0; height:100%; background:var(--ink-950); overflow:hidden; }
+  #scene{ position:relative; width:100vw; height:100vh; overflow:hidden;
+    font-family:var(--type-ui); color:var(--text-secondary); }
+  #root{ display:contents; }
+
+  /* ---------------- 桌面壁纸 ---------------- */
+  #scene::before{ content:""; position:absolute; inset:0; pointer-events:none; z-index:0; }
+  /* 暮光 */
+  .wp-dusk{ background:
+      radial-gradient(120% 90% at 78% 8%, #2a2350 0%, #161222 55%, #0e0b16 100%); }
+  .wp-dusk::before{ background-image:
+      radial-gradient(rgba(149,140,186,.10) 1px, transparent 1.6px);
+    background-size:22px 22px; opacity:.5;
+    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.15)); mask-image:linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.15)); }
+  /* 极光 */
+  .wp-aurora{ background:
+      radial-gradient(90% 60% at 18% -5%, rgba(84,230,160,.22), transparent 60%),
+      radial-gradient(80% 55% at 92% 0%, rgba(92,210,255,.20), transparent 55%),
+      radial-gradient(120% 100% at 50% 120%, #1a1530 0%, #0e0b16 70%); }
+  .wp-aurora::before{ background-image:
+      radial-gradient(rgba(149,140,186,.08) 1px, transparent 1.6px);
+    background-size:24px 24px; opacity:.4; }
+  /* 网格地平线 */
+  .wp-grid{ background:
+      linear-gradient(180deg, #1b1636 0%, #221a3e 46%, #2a1d44 52%, #160f24 53%, #0e0b16 100%); }
+  .wp-grid::before{
+    background-image:
+      linear-gradient(90deg, rgba(92,210,255,.16) 1px, transparent 1px),
+      linear-gradient(0deg,  rgba(92,210,255,.13) 1px, transparent 1px);
+    background-size:42px 42px;
+    top:53%; bottom:0; left:-50%; right:-50%;
+    transform:perspective(340px) rotateX(62deg); transform-origin:top center; }
+
+  /* ---------------- 顶栏 ---------------- */
+  .menubar{ position:absolute; top:0; left:0; right:0; height:30px; z-index:30;
+    display:flex; align-items:center; gap:18px; padding:0 14px;
+    background:color-mix(in oklab, var(--ink-950) 72%, transparent);
+    backdrop-filter:blur(8px); border-bottom:2px solid var(--border-faint);
+    font-size:12px; color:var(--text-tertiary); }
+  .menubar__logo{ width:12px; height:12px; background:var(--accent); box-shadow:0 0 8px var(--accent); }
+  .menubar__brand{ font-family:var(--type-display); font-size:9px; letter-spacing:.16em;
+    color:var(--text-secondary); }
+  .menubar__menu{ display:flex; gap:16px; }
+  .menubar__menu span{ cursor:default; }
+  .menubar__menu span:hover{ color:var(--text-secondary); }
+  .menubar__right{ margin-left:auto; display:flex; align-items:center; gap:14px;
+    font-family:var(--type-readout); font-size:14px; color:var(--text-tertiary); letter-spacing:.04em; }
+  .menubar__right .ic{ display:inline-flex; color:var(--text-quaternary); }
+  .menubar__clock b{ color:var(--text-secondary); font-weight:400; }
+
+  /* ---------------- 桌面图标 ---------------- */
+  .desk-icons{ position:absolute; top:50px; left:18px; z-index:10;
+    display:flex; flex-direction:column; gap:14px; }
+  .deskicon{ width:74px; display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:8px 4px; cursor:default; opacity:.82; transition:background var(--dur-fast); }
+  .deskicon:hover{ background:color-mix(in oklab, var(--white) 6%, transparent); }
+  .deskicon__tile{ width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+    color:var(--_c, var(--text-secondary)); background:var(--surface-raised);
+    border:2px solid var(--border-strong); box-shadow:var(--shadow-1); }
+  .deskicon__label{ font-size:11px; color:var(--text-tertiary); text-align:center; line-height:1.3;
+    text-shadow:0 1px 2px rgba(8,5,16,.8); }
+  .deskicon__badge{ position:absolute; }
+
+  /* ---------------- 提示横幅(初次) ---------------- */
+  .hint{ position:absolute; left:50%; top:42px; transform:translateX(-50%); z-index:25;
+    display:flex; align-items:center; gap:8px; padding:6px 12px;
+    background:color-mix(in oklab, var(--ink-950) 60%, transparent); backdrop-filter:blur(6px);
+    border:2px solid var(--border); font-size:12px; color:var(--text-tertiary);
+    animation:hint-in .5s var(--ease-out) both; }
+  .hint b{ color:var(--accent); }
+  @keyframes hint-in{ from{opacity:0; transform:translateX(-50%) translateY(-6px);} to{opacity:1;} }
+  .hint .x{ cursor:pointer; color:var(--text-quaternary); margin-left:4px; }
+  .hint .x:hover{ color:var(--text-primary); }
+
+  /* ---------------- 挂件模式 (?app=1 · Electron 透明悬浮窗) ---------------- */
+  html.app-mode, html.app-mode body, html.app-mode #scene{ background:transparent !important; }
+  html.app-mode #scene::before{ display:none !important; content:none !important; }
+  html.app-mode .menubar,
+  html.app-mode .desk-icons,
+  html.app-mode .hint{ display:none !important; }
+  /* 让操作系统窗口可由面板头部拖动; 小人/按钮保持可点 */
+  html.app-mode .wx__hd{ -webkit-app-region:drag; }
+  html.app-mode .wx__hd button,
+  html.app-mode .puck,
+  html.app-mode .bubble{ -webkit-app-region:no-drag; }
+</style>
+</head>
+<body>
+<div id="scene" class="wp-dusk">
+  <div id="root"></div>
+</div>
+
+<!-- 缩略图（用于离线打包时的占位） -->
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#161222"/>
+    <g transform="translate(34 30)" fill="#54e6a0">
+      <rect x="6" y="0" width="4" height="3"/><rect x="22" y="0" width="4" height="3"/>
+      <rect x="2" y="6" width="28" height="20" fill="#251f3d"/>
+      <rect x="6" y="11" width="5" height="5"/><rect x="21" y="11" width="5" height="5"/>
+      <rect x="11" y="20" width="10" height="3"/>
+    </g>
+    <rect x="40" y="66" width="20" height="5" fill="#54e6a0" opacity="0.5"/>
+  </svg>
+</template>
+
+<!-- React + DS bundle(已预编译, 自带 PixelIcons) -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="ds/ds-bundle.js"></script>
+<script src="app/data.js"></script>
+<script src="app/engine.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="app/tweaks-panel.jsx"></script>
+<script type="text/babel" src="app/panels.jsx"></script>
+<script type="text/babel" src="app/widget.jsx"></script>
+
+<script type="text/babel">
+const NS = window.GuimarEsPixelDesignSystem_2bf0cf;
+const { Icon } = NS;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "#54e6a0",
+  "spriteScale": 6,
+  "wallpaper": "暮光"
+}/*EDITMODE-END*/;
+
+const ACCENTS = {
+  '#54e6a0': ['#54e6a0','#1f7a52','#14352f'],
+  '#5cd2ff': ['#5cd2ff','#1d6f96','#142e3c'],
+  '#ffcb47': ['#ffcb47','#a9781a','#36301a'],
+  '#b98cff': ['#b98cff','#6a44b0','#251f44'],
+};
+const WALLPAPERS = { '暮光':'dusk', '极光':'aurora', '网格':'grid' };
+
+/* —— 挂件模式: Electron 透明窗 / ?app=1 —— */
+const APP_MODE = new URLSearchParams(location.search).has('app');
+if (APP_MODE) document.documentElement.classList.add('app-mode');
+
+/* —— 顶栏时钟 —— */
+function Clock(){
+  const [now, setNow] = React.useState(new Date());
+  React.useEffect(()=>{ const id=setInterval(()=>setNow(new Date()),1000); return ()=>clearInterval(id); },[]);
+  const p=(n)=>String(n).padStart(2,'0');
+  const wd=['周日','周一','周二','周三','周四','周五','周六'][now.getDay()];
+  return (
+    <span className="menubar__clock">
+      {wd} {now.getMonth()+1}月{now.getDate()}日 &nbsp; <b>{p(now.getHours())}:{p(now.getMinutes())}</b>
+    </span>
+  );
+}
+
+/* —— 桌面外壳 —— */
+function DesktopChrome(){
+  const icons=[
+    { icon:'server',   label:'订货系统', c:'var(--accent)' },
+    { icon:'chart-bar',label:'本周库存', c:'var(--c-skill)' },
+    { icon:'folder',   label:'采购单据', c:'var(--c-level)' },
+  ];
+  return (
+    <React.Fragment>
+      <div className="menubar">
+        <span className="menubar__logo" />
+        <span className="menubar__brand">PIXELDESK</span>
+        <div className="menubar__menu">
+          <span>文件</span><span>编辑</span><span>视图</span><span>帮助</span>
+        </div>
+        <div className="menubar__right">
+          <span className="ic"><Icon name="server"  size={14} /></span>
+          <span className="ic"><Icon name="battery" size={14} /></span>
+          <Clock />
+        </div>
+      </div>
+      <div className="desk-icons">
+        {icons.map((d,i)=>(
+          <div className="deskicon" key={i}>
+            <span className="deskicon__tile" style={{ '--_c': d.c }}><Icon name={d.icon} size={20} color={d.c} /></span>
+            <span className="deskicon__label">{d.label}</span>
+          </div>
+        ))}
+      </div>
+    </React.Fragment>
+  );
+}
+
+/* —— 应用根 —— */
+function App(){
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [showHint, setShowHint] = React.useState(!APP_MODE);
+
+  React.useEffect(()=>{
+    const scene=document.getElementById('scene');
+    scene.className = 'wp-' + (WALLPAPERS[t.wallpaper] || 'dusk');
+    const a = ACCENTS[t.accent] || ACCENTS['#54e6a0'];
+    scene.style.setProperty('--accent', a[0]);
+    scene.style.setProperty('--accent-deep', a[1]);
+    scene.style.setProperty('--accent-soft', a[2]);
+    scene.style.setProperty('--c-active', a[0]);
+    scene.style.setProperty('--c-energy', a[0]);
+  }, [t.accent, t.wallpaper]);
+
+  React.useEffect(()=>{ const id=setTimeout(()=>setShowHint(false), 7000); return ()=>clearTimeout(id); },[]);
+
+  return (
+    <React.Fragment>
+      <DesktopChrome />
+      {showHint && (
+        <div className="hint">
+          <Icon name="bullseye" size={13} color="var(--accent)" />
+          点击右下角的 <b>Guimarães</b> 展开订货面板 · 也可按住把它拖到任意角落
+          <span className="x" onClick={()=>setShowHint(false)}>✕</span>
+        </div>
+      )}
+      <CompanionWidget spriteScale={t.spriteScale} />
+
+      <TweaksPanel>
+        <TweakSection label="陪伴小人" />
+        <TweakColor label="主色" value={t.accent}
+          options={['#54e6a0','#5cd2ff','#ffcb47','#b98cff']}
+          onChange={(v)=>setTweak('accent', v)} />
+        <TweakSlider label="小人大小" value={t.spriteScale} min={4} max={9} step={1} unit="×"
+          onChange={(v)=>setTweak('spriteScale', v)} />
+        <TweakSection label="桌面" />
+        <TweakRadio label="壁纸" value={t.wallpaper} options={['暮光','极光','网格']}
+          onChange={(v)=>setTweak('wallpaper', v)} />
+        <TweakButton label="重放订货提示" onClick={()=>window.dispatchEvent(new Event('demo-alert'))} />
+      </TweaksPanel>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

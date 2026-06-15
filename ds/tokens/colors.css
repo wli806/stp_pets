@@ -1,0 +1,76 @@
+/* ============================================================
+   COLORS — Guimarães Pixel DS  ·  "Dusk Arcade"
+   A deep indigo-ink base so the floating widget reads calmly over
+   any desktop wallpaper, with bright arcade accents that map to the
+   companion's vital signs and panels.
+   ============================================================ */
+:root {
+  /* ---- INK / surfaces (cool indigo, darkest → lightest) ---- */
+  --ink-950: #0e0b16;   /* void behind the widget */
+  --ink-900: #161222;   /* widget / app background */
+  --ink-850: #1d1830;   /* panel surface */
+  --ink-800: #251f3d;   /* raised surface / track */
+  --ink-750: #2c2548;   /* hover surface */
+  --ink-700: #352c57;   /* muted border / hairline */
+  --ink-600: #483d72;   /* border / disabled fg */
+  --ink-500: #5d4f8e;   /* strong border */
+
+  /* ---- TEXT (cool off-white) ---- */
+  --white:      #f5f1ff;
+  --text-90:    #d4ccec;
+  --text-60:    #968cba;
+  --text-40:    #645a86;
+  --text-25:    #463c62;
+
+  /* ---- ACCENTS (bright / deep pairs + soft tints over ink) ---- */
+  --green:      #54e6a0;  --green-deep:  #1f7a52;  --green-soft:  #14352f;  /* active · energy · brand */
+  --amber:      #ffcb47;  --amber-deep:  #a9781a;  --amber-soft:  #36301a;  /* level · xp · evolution */
+  --cyan:       #5cd2ff;  --cyan-deep:   #1d6f96;  --cyan-soft:   #142e3c;  /* skills · learning */
+  --violet:     #b98cff;  --violet-deep: #6a44b0;  --violet-soft: #251f44;  /* work stats · focus */
+  --coral:      #ff7e93;  --coral-deep:  #b0344c;  --coral-soft:  #361f2b;  /* mood · heart */
+  --orange:     #ff9d4a;  --orange-deep: #b3631c;  --orange-soft: #36281b;  /* warn · hunger low */
+  --red:        #ff5d72;  --red-deep:    #a01f30;  --red-soft:    #361923;  /* danger · error */
+
+  /* ============================================================
+     SEMANTIC ALIASES  — reference these in components, not the raw scale
+     ============================================================ */
+  /* surfaces */
+  --bg-desktop:      var(--ink-950);
+  --bg-app:          var(--ink-900);
+  --surface:         var(--ink-850);
+  --surface-raised:  var(--ink-800);
+  --surface-hover:   var(--ink-750);
+  --surface-inset:   var(--ink-950);
+
+  /* borders */
+  --border:          var(--ink-700);
+  --border-strong:   var(--ink-600);
+  --border-faint:    var(--ink-800);
+
+  /* text */
+  --text-primary:    var(--white);
+  --text-secondary:  var(--text-90);
+  --text-tertiary:   var(--text-60);
+  --text-quaternary: var(--text-40);
+  --text-disabled:   var(--text-25);
+
+  /* brand / interactive */
+  --accent:          var(--green);
+  --accent-deep:     var(--green-deep);
+  --accent-soft:     var(--green-soft);
+  --on-accent:       var(--ink-950);   /* text/icon ON a solid accent fill */
+
+  /* domain colors — one hue per panel/vital */
+  --c-level:   var(--amber);   --c-level-soft:  var(--amber-soft);
+  --c-skill:   var(--cyan);    --c-skill-soft:  var(--cyan-soft);
+  --c-stat:    var(--violet);  --c-stat-soft:   var(--violet-soft);
+  --c-mood:    var(--coral);   --c-mood-soft:   var(--coral-soft);
+  --c-energy:  var(--green);   --c-energy-soft: var(--green-soft);
+  --c-active:  var(--green);
+
+  /* status */
+  --status-ok:    var(--green);
+  --status-warn:  var(--orange);
+  --status-error: var(--red);
+  --status-idle:  var(--text-40);
+}
